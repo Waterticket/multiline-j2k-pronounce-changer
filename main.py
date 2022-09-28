@@ -24,6 +24,31 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 reg = re.compile(r'[a-zA-Z]')
 
 def translate(text):
+    # pre-process
+    text = text.replace('～', 'ー')
+    text = text.replace('~', 'ー')
+    text = text.strip()
+
+    # 띄어쓰기 있으면 그거 기준으로 나눠서 처리
+    if ' ' in text:
+        break_text = text.split(' ')
+        result = {
+            'original': '',
+            'after_spacing': '',
+            'after_spacing_kana': '',
+        }
+
+        for t in break_text:
+            trans = translate(t)
+            result['original'] += trans['original'] + ' '
+            result['after_spacing'] += trans['after_spacing'] + ' '
+            result['after_spacing_kana'] += trans['after_spacing_kana'] + ' '
+        
+        result['original'] = result['original'].strip()
+        result['after_spacing'] = result['after_spacing'].strip()
+        result['after_spacing_kana'] = result['after_spacing_kana'].strip()
+        return result
+
     tagger = Tagger('-Owakati')
     tagger.parse(text)
 
@@ -41,7 +66,7 @@ def translate(text):
             after_spacing_kana += word.surface + ' '
             continue
         
-        # print(word, word.feature.kana, word.feature.lemma, word.pos, sep='\t')
+        print(word, word.feature.kana, word.feature.lemma, word.pos, sep='\t')
         tags = word.pos.split(',')
         processed = False
         
@@ -83,13 +108,19 @@ def translate(text):
                 processed = True
                 break
 
+            elif tag == '補助記号': # 기호
+                after_spacing_original += word.surface
+                after_spacing_kana += word.surface
+                processed = True
+                break
+
         if not processed:
             after_spacing_original += word.surface + ' '
             after_spacing_kana += word_kana + ' '
 
-    # print('Original: ', text)
-    # print('After spacing: ', after_spacing_original)
-    # print('After spacing kana: ', after_spacing_kana)
+    print('Original: ', text)
+    print('After spacing: ', after_spacing_original)
+    print('After spacing kana: ', after_spacing_kana)
 
     return {
         'original': text,
