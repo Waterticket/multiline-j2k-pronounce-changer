@@ -1,4 +1,4 @@
-from fugashi import Tagger
+import fugashi #import Tagger
 import requests
 import json
 import time
@@ -49,7 +49,9 @@ def translate(text):
         result['after_spacing_kana'] = result['after_spacing_kana'].strip()
         return result
 
-    tagger = Tagger('-Owakati')
+    #from fugashi import GenericTagger
+    #tagger = Tagger()
+    tagger = fugashi.Tagger('-Owakati')
     tagger.parse(text)
 
     after_spacing_original = ''
