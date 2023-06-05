@@ -149,10 +149,13 @@ async def convert_lyrics(item: Item):
         to_kor_lyrics.append(lyric_kor)
 
     # j2 request
-    response = requests.post('http://host.docker.internal:5000/pronounciation/j2k/group', json={'data':to_kor_lyrics})
-    response_json = response.json()
-    for i in range(len(response_json)):
-        lyrics[i]['kor'] = response_json[i]['Pronounce'].strip()
+    try:
+        response = requests.post('http://host.docker.internal:5000/pronounciation/j2k/group', json={'data':to_kor_lyrics})
+        response_json = response.json()
+        for i in range(len(response_json)):
+            lyrics[i]['kor'] = response_json[i]['Pronounce'].strip()
+    except:
+        pass
 
     return {
         # 'original': query,
